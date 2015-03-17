@@ -1,0 +1,139 @@
+<!DOCTYPE html><html><head>
+<style>
+	#graph { width: 100%; overflow: visible; }
+</style>
+</head>
+
+<body>
+	<pre><code id="source">
+		function A() {}
+		function B() {
+			new A();
+		}
+
+		new B();
+	</code></pre>
+	<pre><code id="sequence">[
+    {
+        "op": "init",
+        "caller": "program",
+        "type": "B"
+    },
+    {
+        "op": "init",
+        "caller": "B",
+        "type": "A"
+    }
+]</code></pre>
+	<br>
+	<br>
+	<svg id="graph"></svg>
+    <script src="d3.min.js"></script>
+    <script src="pegasus.min.js"></script>
+    <script id="json">var steps = [{"op":"init","caller":"program","type":"B"},{"op":"init","caller":"B","type":"A"}]</script>
+    <script>
+		// Accessors
+		function is_init (step) { return step.op === 'init'; }
+		function type(step) { return step.type; }
+		function sender(step) { return step.caller; }
+		function receiver(step) {
+			if (step.type) {
+				return step.type;
+			}
+	   	}
+		function op(step) { return step.op; }
+		function instance(step) {
+			if (!is_init(step)) {
+				return;
+			}
+
+		   	instances.push(step.type);
+		}
+
+		// Rendering
+		function direction(step) { return x(sender(step)) < x(receiver(step)) ? 'right' : 'left'; }
+		function graph($el, width, height) {
+			return g;
+		}
+		function line_end(d) {
+			var _x = x(receiver(d));
+			if (direction(d) === 'right') {
+				_x -= arrow_size;
+			} else {
+				_x += arrow_size;
+			}
+			return _x;
+		}
+		function arrow(selection) {
+			selection.append('path').attr('d', function (d) {
+				return direction(d) === 'right' ? right_arrow() : left_arrow();
+			}).attr('transform', function (d, i) {
+				var _y = y(i);
+				_y -= arrow_size / 2;
+				return 'translate(' + line_end(d) + ', ' + _y + ')';
+			});
+		}
+		function right_arrow() {
+			var path = [
+				'M', 0, 0,
+			   	'L', arrow_size, arrow_size / 2,
+			   	'L', 0, arrow_size
+			];
+			return path.join(' ') + 'Z';
+		}
+		function left_arrow() { return right_arrow(); }
+
+		function x_scale(width, instances) {
+			var x = d3.scale.ordinal();
+			x.domain([].concat(['program'], instances, ['extern']));
+			x.rangePoints([0, width]);
+			return x;
+		}
+
+		function y_scale(steps, bar_height) {
+			var y = d3.scale.linear();
+			y.domain([0, steps - 1]);
+			y.range([0, steps * bar_height]);
+			return y;
+		}
+
+		var $graph = document.querySelector('#graph');
+		var instances = [];
+		steps.map(instance);
+		var step_height = 20;
+		var arrow_size = step_height / 2;
+		var x = x_scale($graph.clientWidth, instances);
+		var y = y_scale(steps.length, step_height);
+		var graph = d3.select($graph)
+		graph.attr('width', x.rangeExtent()[1]);
+		graph.attr('height', y.range()[1]);
+
+		var step = graph.selectAll('g').data(steps);
+		var op = step.enter().append('g');
+		//op.each(render_instance);
+
+		var label = op.append('text');
+		label.text(receiver);
+		label.attr('x', function (d) { return x(receiver(d)); });
+		label.attr('y', function (d, i ) { return y(i); });
+
+		var line = op.append('line');
+		line.attr('x1', function (d) { return x(sender(d)); });
+		line.attr('y1', function (d, i) { return y(i); });
+		line.attr('x2', line_end);
+		line.attr('y2', function (d, i) { return y(i); });
+		line.attr('stroke', 'black');
+		line.attr('stroke-width', 2);
+
+		var arrow = step.call(arrow);
+    </script>
+
+
+
+
+
+
+
+
+
+</body></html>

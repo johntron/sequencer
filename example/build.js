@@ -1,0 +1,21 @@
+var debug = require('debug')('sequencer:example');
+var resolve = require('path').resolve;
+var read = require('fs').readFileSync;
+var write = require('fs').writeFileSync;
+var parse = require('jsdom').jsdom;
+var serialize = require('jsdom').serializeDocument;
+var Sequencer = require('..');
+
+var index = resolve(__dirname, 'index.html');
+var html = read(index);
+var doc = parse(html).defaultView.document;
+var src = doc.querySelector('#source').textContent.trim();
+debug('Got source: %s', src);
+var sequence = Sequencer.parse(src).sequence;
+debug('Sequence: %o', sequence);
+doc.querySelector('#sequence').textContent = JSON.stringify(sequence, null, 4);
+var json = 'var steps = ' + JSON.stringify(sequence);
+doc.querySelector('#json').textContent = json;
+html = serialize(doc);
+debug('Writing %s source: %s', index, html);
+write(index, html);
