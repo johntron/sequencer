@@ -1,7 +1,7 @@
 Sequencer
 =========
 
-Generate sequence diagrams of JavaScript code
+Generate sequence diagrams of JavaScript code. [Example](https://rawgit.com/johntron/sequencer/master/example/index.html)
 
 API
 ---
