@@ -14,8 +14,6 @@ var visitors = {
         debug('NewExpression', node, ctx);
 
         var step = init(ctx.caller, node.callee, ctx);
-        ctx.sequence.push(step);
-
         return step;
     },
 
@@ -54,19 +52,24 @@ var visitors = {
 
 function init(caller, callee, ctx) {
     var type = callee.name;
+    var step = {
+        op: 'init',
+        caller: caller,
+        type: type
+    };
     var tree = ctx.function_trees[type];
+	
+	ctx.sequence.push(step);
+
     if (tree) {
+		// Walk function body
         var prev = caller;
         ctx.caller = type;
         visitors.walk(tree.body, ctx);
         ctx.caller = prev;
     }
 
-    return {
-        op: 'init',
-        caller: caller,
-        type: type
-    };
+	return step;
 }
 
 function call(caller, callee, method, ctx) {
