@@ -11,7 +11,8 @@ Sequencer.parse = function(script) {
     var ctx = {
         sequence: s.sequence,
         caller: 'program',
-		function_trees: {}
+		function_trees: {},
+		variables: {}
     };
     var ast = esprima.parse(script);
     walk(ast, ctx);

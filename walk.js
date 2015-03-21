@@ -4,7 +4,7 @@ var visitors = require('./visitors.js');
 function walk(node, ctx) {
     debug('walking node', node);
     if (walk.visitors[node.type]) {
-        walk.visitors[node.type](node, ctx);
+        return walk.visitors[node.type](node, ctx);
     }
 }
 
