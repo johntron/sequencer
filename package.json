@@ -16,9 +16,7 @@
   "author": "John Syrinek",
   "license": "MIT",
   "devDependencies": {
-    "chai": "^2.1.1",
-    "jsdom": "^3.1.2",
-    "mocha": "^2.2.1"
+    "chai": "^2.1.1"
   },
   "dependencies": {
     "debug": "^2.1.2",
